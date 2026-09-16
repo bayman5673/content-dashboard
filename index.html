@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Content Pipeline Dashboard | لوحة تتبع المحتوى</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{tajawal:["Tajawal","sans-serif"],inter:["Inter","sans-serif"]}}}}</script>
+<style>
+*{scrollbar-width:thin;scrollbar-color:#3f3f46 transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#3f3f46;border-radius:999px}
+.glass{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+button:active{transform:scale(0.98)}
+input[type="date"],input[type="month"]{color-scheme:dark}
+.checkbox:checked{ background:#7c3aed; border-color:#7c3aed; }
+</style>
+</head>
+<body class="bg-[#0a0a0d] text-zinc-100 font-tajawal antialiased min-h-screen selection:bg-violet-500/30">
+<div class="fixed inset-0 pointer-events-none overflow-hidden">
+<div class="absolute -top-[28%] start-1/2 -translate-x-1/2 w-[900px] h-[460px] bg-gradient-to-r from-violet-600/15 via-fuchsia-600/10 to-amber-600/10 blur-[100px] rounded-full"></div>
+<div class="absolute top-[12%] -end-[12%] w-[380px] h-[380px] bg-emerald-600/7 blur-[80px] rounded-full"></div>
+</div>
+<header class="sticky top-0 z-40 border-b border-zinc-800/80 bg-[#0a0a0d]/80 glass">
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6">
+<div class="flex items-center justify-between h-[60px] gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-600/20 shrink-0">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 12h10M12 7v10"/></svg>
+</div>
+<div class="min-w-0">
+<h1 class="text-[15px] sm:text-[16px] font-extrabold leading-none truncate">Content Pipeline Dashboard</h1>
+<p class="text-[11px] text-zinc-400 hidden sm:block font-medium">منظومة نشر صناعة المحتوى — واجهة تتبع يومية</p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<span class="inline-flex items-center gap-1.5 text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+<span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Live
+</span>
+<span class="hidden sm:inline-flex text-[11px] text-zinc-500 font-mono bg-zinc-900 border border-zinc-800 px-2 py-1 rounded-full" id="todayLabel"></span>
+</div>
+</div>
+</div>
+</header>
+<main class="relative max-w-[1280px] mx-auto px-4 sm:px-6 py-5 sm:py-7">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+<div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-4 relative overflow-hidden">
+<p class="text-[10px] font-bold tracking-widest text-zinc-500">إجمالي المنشورات</p>
+<p id="statTotal" class="text-[26px] font-extrabold leading-none mt-1">0</p>
+<p class="text-[11px] text-zinc-500 font-medium">Total</p>
+<div class="absolute end-3 bottom-3 w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+</div>
+</div>
+<div class="rounded-2xl bg-amber-500/[0.08] border border-amber-500/20 p-4 relative overflow-hidden">
+<p class="text-[10px] font-bold tracking-widest text-amber-400/80">بانتظار الاعتماد</p>
+<p id="statPending" class="text-[26px] font-extrabold leading-none mt-1 text-amber-400">0</p>
+<p class="text-[11px] text-amber-300/60 font-medium">Pending</p>
+<div class="absolute end-3 bottom-3 w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+</div>
+</div>
+<div class="rounded-2xl bg-emerald-500/[0.08] border border-emerald-500/20 p-4 relative overflow-hidden">
+<p class="text-[10px] font-bold tracking-widest text-emerald-400/80">تم النشر</p>
+<p id="statPublished" class="text-[26px] font-extrabold leading-none mt-1 text-emerald-400">0</p>
+<p class="text-[11px] text-emerald-300/60 font-medium">Published</p>
+<div class="absolute end-3 bottom-3 w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+</div>
+</div>
+<div class="rounded-2xl bg-red-500/[0.08] border border-red-500/20 p-4 relative overflow-hidden">
+<p class="text-[10px] font-bold tracking-widest text-red-400/80">المرفوضة</p>
+<p id="statRejected" class="text-[26px] font-extrabold leading-none mt-1 text-red-400">0</p>
+<p class="text-[11px] text-red-300/60 font-medium">Rejected</p>
+<div class="absolute end-3 bottom-3 w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center text-red-400">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+</div>
+</div>
+</div>
+<div class="relative mb-3">
+<svg class="absolute start-3.5 top-1/2 -translate-y-1/2 text-zinc-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+<input id="searchInput" type="text" placeholder="ابحث في العنوان أو الملخص العربي..." class="w-full h-[46px] ps-10 pe-4 rounded-2xl bg-zinc-900 border border-zinc-800 placeholder:text-zinc-500 text-[13px] focus:outline-none focus:border-zinc-700 transition">
+</div>
+<div class="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 -mx-1 px-1 mb-2">
+<div class="flex items-center gap-1 p-1 rounded-2xl bg-zinc-900 border border-zinc-800 shrink-0">
+<button data-time="today" class="time-btn active whitespace-nowrap px-3.5 h-8 rounded-xl text-[12px] font-bold bg-white text-zinc-900 shadow">منشورات اليوم</button>
+<button data-time="yesterday" class="time-btn whitespace-nowrap px-3.5 h-8 rounded-xl text-[12px] font-medium text-zinc-400">منشورات الأمس</button>
+<button data-time="specific" class="time-btn whitespace-nowrap px-3.5 h-8 rounded-xl text-[12px] font-medium text-zinc-400">تاريخ محدد</button>
+<button data-time="range" class="time-btn whitespace-nowrap px-3.5 h-8 rounded-xl text-[12px] font-medium text-zinc-400">نطاق محدد</button>
+<button data-time="month" class="time-btn whitespace-nowrap px-3.5 h-8 rounded-xl text-[12px] font-medium text-zinc-400">شهر كامل</button>
+<button data-time="all" class="time-btn whitespace-nowrap px-3.5 h-8 rounded-xl text-[12px] font-medium text-zinc-400">كل المنشورات</button>
+</div>
+<span class="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-zinc-500 font-medium shrink-0">
+<span class="w-1 h-1 bg-zinc-600 rounded-full"></span>
+<span id="resultsCount">0 منشور</span>
+</span>
+</div>
+<div id="advancedPickers" class="mb-3">
+<div id="specificPicker" class="hidden">
+<div class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-2xl p-2">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+<span class="text-[12px] font-bold text-zinc-300">التاريخ:</span>
+<input id="specificDate" type="date" class="flex-1 h-8 rounded-xl bg-zinc-800 border border-zinc-700 px-3 text-[13px] focus:outline-none focus:border-violet-500">
+<button onclick="clearSpecific()" class="text-[11px] text-zinc-400 hover:text-zinc-200 px-2">مسح</button>
+</div>
+</div>
+<div id="rangePicker" class="hidden">
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-2xl p-2">
+<div class="flex items-center gap-2 flex-1">
+<span class="text-[12px] font-bold text-zinc-300">من:</span>
+<input id="rangeFrom" type="date" class="flex-1 h-8 rounded-xl bg-zinc-800 border border-zinc-700 px-3 text-[13px] focus:outline-none focus:border-violet-500">
+</div>
+<span class="hidden sm:block text-zinc-600">→</span>
+<div class="flex items-center gap-2 flex-1">
+<span class="text-[12px] font-bold text-zinc-300">إلى:</span>
+<input id="rangeTo" type="date" class="flex-1 h-8 rounded-xl bg-zinc-800 border border-zinc-700 px-3 text-[13px] focus:outline-none focus:border-violet-500">
+</div>
+<button onclick="clearRange()" class="text-[11px] text-zinc-400 hover:text-zinc-200 px-2 self-center">مسح</button>
+</div>
+</div>
+<div id="monthPicker" class="hidden">
+<div class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-2xl p-2">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+<span class="text-[12px] font-bold text-zinc-300">الشهر:</span>
+<input id="monthValue" type="month" class="flex-1 h-8 rounded-xl bg-zinc-800 border border-zinc-700 px-3 text-[13px] focus:outline-none focus:border-violet-500">
+<button onclick="clearMonth()" class="text-[11px] text-zinc-400 hover:text-zinc-200 px-2">مسح</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-1 p-1 rounded-2xl bg-zinc-900 border border-zinc-800 w-fit mb-3 overflow-x-auto max-w-full">
+<button data-tab="All" class="tab-btn active whitespace-nowrap px-4 h-8 rounded-xl text-[12.5px] font-bold bg-white text-zinc-900 transition">الكل</button>
+<button data-tab="Pending" class="tab-btn whitespace-nowrap px-4 h-8 rounded-xl text-[12.5px] font-medium text-zinc-400">Pending</button>
+<button data-tab="Published" class="tab-btn whitespace-nowrap px-4 h-8 rounded-xl text-[12.5px] font-medium text-zinc-400">Published</button>
+<button data-tab="Rejected" class="tab-btn whitespace-nowrap px-4 h-8 rounded-xl text-[12.5px] font-medium text-zinc-400">Rejected</button>
+</div>
+<div class="flex items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-2.5 mb-4">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input id="selectAll" type="checkbox" class="w-[18px] h-[18px] rounded-md border-2 border-zinc-600 bg-zinc-800 accent-violet-600">
+<span class="text-[13px] font-bold">تحديد الكل</span>
+<span id="selectedBadge" class="hidden inline-flex items-center justify-center min-w-[22px] h-6 px-2 rounded-full bg-violet-600 text-white text-[11px] font-bold">0</span>
+</label>
+<button id="deleteSelectedBtn" class="hidden inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-[12px] font-bold transition">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+<span id="deleteSelectedText">حذف المحدد</span>
+</button>
+</div>
+<div id="postsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+<div id="emptyState" class="hidden flex-col items-center justify-center py-14 text-center">
+<div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-3">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+</div>
+<p class="text-[14px] font-bold">لا توجد منشورات</p>
+<p id="emptyDesc" class="text-[12px] text-zinc-500 mt-1">لا توجد منشورات لليوم</p>
+</div>
+</main>
+<div id="confirmModal" class="fixed inset-0 z-50 hidden">
+<div id="confirmBackdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+<div class="absolute inset-0 flex items-center justify-center p-4">
+<div class="relative w-full max-w-[400px] bg-zinc-900 border border-zinc-800 rounded-[20px] shadow-2xl p-6">
+<div class="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+</div>
+<h3 id="confirmTitle" class="text-[16px] font-extrabold text-center">تأكيد الحذف</h3>
+<p id="confirmMsg" class="text-[13px] text-zinc-400 text-center leading-relaxed mt-2">هل أنت متأكد من حذف هذا المنشور؟ لا يمكن التراجع عن هذا الإجراء.</p>
+<div class="flex gap-2 mt-6">
+<button id="confirmDeleteBtn" class="flex-1 h-10 rounded-xl bg-red-600 hover:bg-red-500 text-white text-[13px] font-bold transition">حذف</button>
+<button id="cancelDeleteBtn" class="flex-1 h-10 rounded-xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-[13px] font-bold transition">إلغاء</button>
+</div>
+</div>
+</div>
+</div>
+<div id="toast" class="fixed bottom-5 start-1/2 -translate-x-1/2 z-50 hidden">
+<div class="bg-zinc-900 border border-zinc-800 text-white text-[13px] font-bold px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>
+<span id="toastMsg">Caption Copied!</span>
+</div>
+</div>
+<script>
+const FALLBACK_POSTS=[
+  {id:"post-001",title_en:"White House Unveils New Middle East Economic Corridor",caption_en:"This is MASSIVE! The White House just dropped a brand-new economic corridor plan linking the Middle East like never before. Trade, energy, and tech all in one move — this is straight up a game-changer for the region. No cap, the next few months are gonna be wild!",summary_ar:"البيت الأبيض يكشف عن مشروع ممر اقتصادي جديد يربط الشرق الأوسط ويعزز التجارة والطاقة.",image_url:"https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=900&q=80",source_url:"https://www.reuters.com/world/middle-east/white-house-economic-corridor-2026-09-16/",post_type:"Official Statement",category:"Geopolitics",status:"Pending",created_at:new Date().toISOString(),published_at:null},
+  {id:"post-002",title_en:"Markets Surge as Fed Signals Rate Cut",caption_en:"Yo, Wall Street is LIT rn! The Fed just hinted at a rate cut and markets absolutely exploded. Stocks going parabolic, vibes are immaculate. If you were sidelined, you definitely missed a W today fr fr.",summary_ar:"الأسواق تقفز بقوة بعد تلميح الاحتياطي الفيدرالي لخفض أسعار الفائدة.",image_url:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&q=80",source_url:"https://www.bloomberg.com/markets/fed-rate-cut-signal-2026",post_type:"General News",category:"Economics",status:"Published",created_at:new Date().toISOString(),published_at:new Date().toISOString()},
+  {id:"post-003",title_en:"Breakthrough AI Chip Promises 10x Performance",caption_en:"Tech just leveled up! A new AI chip just dropped claiming 10x performance — and its not even hype. This could literally flip the whole industry on its head. The future is here and its moving FAST.",summary_ar:"الكشف عن شريحة ذكاء اصطناعي ثورية تعد بأداء يفوق السابق بعشرة أضعاف.",image_url:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=80",source_url:"https://www.theverge.com/2026/09/16/ai-chip-breakthrough",post_type:"General News",category:"Technology",status:"Rejected",created_at:new Date().toISOString(),published_at:null}
+];
+let posts=[];let activeTab="All";let timeFilter="today";let searchQuery="";let specificDate="";let rangeFrom="";let rangeTo="";let monthValue="";let selectedIds=new Set();let pendingDeleteIds=[];
+function todayStr(d=new Date()){return d.toLocaleDateString("en-CA")}
+function dateStr(iso){return new Date(iso).toLocaleDateString("en-CA")}
+function yesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return d.toLocaleDateString("en-CA")}
+async function init(){
+  document.getElementById("todayLabel").textContent=todayStr();
+  try{const r=await fetch("./posts_database.json",{cache:"no-store"});if(r.ok){const j=await r.json();if(Array.isArray(j)&&j.length) posts=j;else posts=FALLBACK_POSTS.slice()}else posts=FALLBACK_POSTS.slice()}catch{posts=FALLBACK_POSTS.slice()}
+  const saved=localStorage.getItem("cp_posts_v2");
+  if(saved){try{const p=JSON.parse(saved);if(Array.isArray(p)&&p.length) posts=p}catch{}}
+  posts.sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
+  render();
+}
+function persist(){localStorage.setItem("cp_posts_v2", JSON.stringify(posts))}
+function badgeClass(s){if(s==="Pending") return "bg-amber-500 text-zinc-900 border-amber-400";if(s==="Published") return "bg-emerald-500 text-white border-emerald-400";return "bg-red-500 text-white border-red-400"}
+function filtered(){
+  const t=todayStr();const y=yesterdayStr();
+  return posts.filter(p=>{
+    const ds=dateStr(p.created_at);
+    if(timeFilter==="today" && ds!==t) return false;
+    if(timeFilter==="yesterday" && ds!==y) return false;
+    if(timeFilter==="specific" && specificDate && ds!==specificDate) return false;
+    if(timeFilter==="specific" && !specificDate) return false;
+    if(timeFilter==="range"){
+      if(!rangeFrom || !rangeTo) return false;
+      if(ds < rangeFrom || ds > rangeTo) return false;
+    }
+    if(timeFilter==="month" && monthValue && !ds.startsWith(monthValue)) return false;
+    if(timeFilter==="month" && !monthValue) return false;
+    if(activeTab!=="All" && p.status!==activeTab) return false;
+    if(searchQuery){const q=searchQuery.toLowerCase();const hay=(p.title_en+" "+p.summary_ar+" "+p.caption_en).toLowerCase();if(!hay.includes(q)) return false}
+    return true;
+  });
+}
+function updateStats(){
+  const listForStats = posts.filter(p=>{
+    const ds=dateStr(p.created_at);
+    const t=todayStr();const y=yesterdayStr();
+    if(timeFilter==="today" && ds!==t) return false;
+    if(timeFilter==="yesterday" && ds!==y) return false;
+    if(timeFilter==="specific" && specificDate && ds!==specificDate) return false;
+    if(timeFilter==="specific" && !specificDate) return false;
+    if(timeFilter==="range" && rangeFrom && rangeTo && (ds < rangeFrom || ds > rangeTo)) return false;
+    if(timeFilter==="range" && (!rangeFrom||!rangeTo)) return false;
+    if(timeFilter==="month" && monthValue && !ds.startsWith(monthValue)) return false;
+    if(timeFilter==="month" && !monthValue) return false;
+    return true;
+  });
+  const total=listForStats.length;
+  document.getElementById("statTotal").textContent=total;
+  document.getElementById("statPending").textContent=listForStats.filter(p=>p.status==="Pending").length;
+  document.getElementById("statPublished").textContent=listForStats.filter(p=>p.status==="Published").length;
+  document.getElementById("statRejected").textContent=listForStats.filter(p=>p.status==="Rejected").length;
+}
+function escapeHtml(s){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll("\"","&quot;")}
+function formatTime(iso){const d=new Date(iso);return d.toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"})+" • "+d.toLocaleDateString("ar-EG")}
+function render(){
+  updateStats();
+  const list=filtered();
+  document.getElementById("resultsCount").textContent=list.length+" منشور";
+  document.querySelectorAll(".time-btn").forEach(b=>{
+    if(b.dataset.time===timeFilter) b.className="time-btn active whitespace-nowrap px-3.5 h-8 rounded-xl text-[12px] font-bold bg-white text-zinc-900 shadow transition";
+    else b.className="time-btn whitespace-nowrap px-3.5 h-8 rounded-xl text-[12px] font-medium text-zinc-400 hover:text-zinc-200 transition";
+  });
+  document.getElementById("specificPicker").classList.toggle("hidden", timeFilter!=="specific");
+  document.getElementById("rangePicker").classList.toggle("hidden", timeFilter!=="range");
+  document.getElementById("monthPicker").classList.toggle("hidden", timeFilter!=="month");
+  // tabs
+  document.querySelectorAll(".tab-btn").forEach(b=>{
+    const cntForTab = posts.filter(p=>{
+      const ds=dateStr(p.created_at);
+      const t=todayStr();const y=yesterdayStr();
+      if(timeFilter==="today" && ds!==t) return false;
+      if(timeFilter==="yesterday" && ds!==y) return false;
+      if(timeFilter==="specific" && specificDate && ds!==specificDate) return false;
+      if(timeFilter==="specific" && !specificDate) return false;
+      if(timeFilter==="range" && rangeFrom && rangeTo && (ds < rangeFrom || ds > rangeTo)) return false;
+      if(timeFilter==="range" && (!rangeFrom||!rangeTo)) return false;
+      if(timeFilter==="month" && monthValue && !ds.startsWith(monthValue)) return false;
+      if(timeFilter==="month" && !monthValue) return false;
+      if(b.dataset.tab!=="All" && p.status!==b.dataset.tab) return false;
+      if(searchQuery){const q=searchQuery.toLowerCase();const hay=(p.title_en+" "+p.summary_ar+" "+p.caption_en).toLowerCase();if(!hay.includes(q)) return false}
+      return true;
+    }).length;
+    const base=b.dataset.tab==="All"?"الكل":b.dataset.tab;
+    b.textContent=base+" • "+cntForTab;
+    if(b.dataset.tab===activeTab) b.className="tab-btn active whitespace-nowrap px-4 h-8 rounded-xl text-[12.5px] font-bold bg-white text-zinc-900 transition shadow";
+    else b.className="tab-btn whitespace-nowrap px-4 h-8 rounded-xl text-[12.5px] font-medium text-zinc-400 hover:text-zinc-200 transition";
+  });
+  // selection UI
+  const visibleIds = new Set(list.map(p=>p.id));
+  // clean selectedIds that are not visible? keep but selectAll reflects visible only
+  const selectedVisibleCount = [...selectedIds].filter(id=> visibleIds.has(id)).length;
+  const allVisibleSelected = list.length>0 && selectedVisibleCount===list.length;
+  document.getElementById("selectAll").checked = allVisibleSelected;
+  document.getElementById("selectAll").indeterminate = selectedVisibleCount>0 && !allVisibleSelected;
+  const badge=document.getElementById("selectedBadge");
+  if(selectedIds.size>0){badge.classList.remove("hidden");badge.textContent=selectedIds.size}else{badge.classList.add("hidden")}
+  const delBtn=document.getElementById("deleteSelectedBtn");
+  if(selectedIds.size>0){
+    delBtn.classList.remove("hidden");delBtn.classList.add("inline-flex");
+    document.getElementById("deleteSelectedText").textContent="حذف "+selectedIds.size+" منشورات محددة";
+  }else{delBtn.classList.add("hidden");delBtn.classList.remove("inline-flex")}
+  const grid=document.getElementById("postsGrid");const empty=document.getElementById("emptyState");
+  if(list.length===0){
+    grid.innerHTML="";
+    empty.classList.remove("hidden");empty.classList.add("flex");
+    let txt="لا توجد منشورات";
+    if(timeFilter==="today") txt="لا توجد منشورات لليوم";
+    else if(timeFilter==="yesterday") txt="لا توجد منشورات للأمس";
+    else if(timeFilter==="specific") txt=specificDate?"لا توجد منشورات في "+specificDate:"اختر تاريخاً محدداً";
+    else if(timeFilter==="range") txt=(rangeFrom&&rangeTo)?"لا توجد منشورات في النطاق المحدد":"حدد نطاق التاريخ";
+    else if(timeFilter==="month") txt=monthValue?"لا توجد منشورات في "+monthValue:"اختر شهراً";
+    document.getElementById("emptyDesc").textContent=txt;
+    return;
+  }
+  empty.classList.add("hidden");empty.classList.remove("flex");
+  grid.innerHTML=list.map(p=>{
+    const isSelected=selectedIds.has(p.id);
+    return `
+    <article class="group flex flex-col overflow-hidden rounded-[22px] bg-zinc-900 border ${isSelected?"border-violet-500/60 ring-1 ring-violet-500/20":"border-zinc-800 hover:border-zinc-700"} transition hover:shadow-xl hover:shadow-black/20 relative">
+      <div class="absolute top-3 start-3 z-10">
+        <label class="flex items-center justify-center w-8 h-8 rounded-xl ${isSelected?"bg-violet-600 border-violet-500":"bg-zinc-900/80 backdrop-blur border-white/20"} border cursor-pointer hover:scale-105 transition">
+          <input type="checkbox" data-id="${p.id}" ${isSelected?"checked":""} onchange="toggleSelect('${p.id}', this.checked)" class="sr-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="${isSelected?"block":"hidden"}"><path d="M5 13l4 4L19 7"/></svg>
+          <span class="${isSelected?"hidden":"block"} w-3.5 h-3.5 rounded border-2 border-white/60"></span>
+        </label>
+      </div>
+      <button onclick="requestDelete('${p.id}')" class="absolute top-3 end-14 z-10 w-8 h-8 rounded-xl bg-zinc-900/80 backdrop-blur border border-white/10 hover:bg-red-600 hover:border-red-500 text-zinc-300 hover:text-white flex items-center justify-center transition">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
+      <div class="relative h-[190px] overflow-hidden bg-zinc-800">
+        <img src="${p.image_url}" alt="" class="w-full h-full object-cover group-hover:scale-[1.02] transition duration-700" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&q=80'">
+        <div class="absolute inset-0 bg-gradient-to-t from-zinc-900/60 via-transparent to-transparent"></div>
+        <span class="absolute top-3 end-3 inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-1 rounded-full border shadow ${badgeClass(p.status)}">
+          <span class="w-1.5 h-1.5 rounded-full ${p.status==="Pending"?"bg-zinc-900":"bg-white"}"></span>${p.status}
+        </span>
+        <span class="absolute bottom-3 start-3 inline-flex items-center gap-1 text-[11px] font-medium bg-zinc-900/85 backdrop-blur border border-white/10 px-2.5 py-1 rounded-full">
+          ${p.category} • ${p.post_type}
+        </span>
+      </div>
+      <div class="flex-1 p-4 flex flex-col gap-3">
+        <div class="flex items-start justify-between gap-2">
+          <h3 class="text-[13.5px] font-bold leading-snug font-inter text-zinc-100" dir="ltr">${escapeHtml(p.title_en)}</h3>
+          <span class="shrink-0 text-[10px] font-mono bg-zinc-800 border border-zinc-700 px-1.5 py-1 rounded-md text-zinc-400">${p.id}</span>
+        </div>
+        <p class="text-[13px] leading-relaxed text-zinc-300">${escapeHtml(p.summary_ar)}</p>
+        <div class="rounded-xl bg-zinc-800/50 border border-zinc-800 p-3">
+          <p class="text-[12px] leading-relaxed text-zinc-400 font-inter line-clamp-2" dir="ltr">${escapeHtml(p.caption_en)}</p>
+          <p class="text-[10px] text-zinc-500 mt-2 flex items-center gap-1">${formatTime(p.created_at)}</p>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="copyCaption('${p.id}')" class="inline-flex items-center justify-center gap-1.5 h-9 rounded-xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-[11.5px] font-bold transition">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3"/></svg>
+            نسخ الكابشن
+          </button>
+          <button onclick="downloadImage('${p.image_url}','${p.id}')" class="inline-flex items-center justify-center gap-1.5 h-9 rounded-xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-[11.5px] font-bold transition">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            تحميل
+          </button>
+          <a href="${p.source_url||"#"}" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-1 h-9 rounded-xl bg-white text-zinc-900 hover:bg-zinc-100 text-[11.5px] font-bold transition ${!p.source_url?"pointer-events-none opacity-50":""}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            المصدر
+          </a>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="setStatus('${p.id}','Published')" class="h-9 rounded-xl text-[12px] font-bold border transition ${p.status==="Published"?"bg-emerald-500 border-emerald-400 text-white shadow":"bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/15"}">
+            ✅ Published
+          </button>
+          <button onclick="setStatus('${p.id}','Rejected')" class="h-9 rounded-xl text-[12px] font-bold border transition ${p.status==="Rejected"?"bg-red-500 border-red-400 text-white shadow":"bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/15"}">
+            ❌ Rejected
+          </button>
+        </div>
+      </div>
+    </article>
+  `}).join("");
+}
+function toggleSelect(id, checked){
+  if(checked) selectedIds.add(id); else selectedIds.delete(id);
+  render();
+}
+function toggleSelectAll(checked){
+  const list=filtered();
+  if(checked) list.forEach(p=> selectedIds.add(p.id));
+  else list.forEach(p=> selectedIds.delete(p.id));
+  render();
+}
+function copyCaption(id){
+  const p=posts.find(x=>x.id===id); if(!p) return;
+  navigator.clipboard.writeText(p.caption_en).then(()=> showToast("Caption Copied!"));
+}
+async function downloadImage(url, id){
+  try{
+    const res=await fetch(url, {mode:"cors"});
+    if(!res.ok) throw new Error("fetch fail");
+    const blob=await res.blob();
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=id+".jpg";
+    a.click();
+    setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+    showToast("جاري تحميل الصورة...");
+  }catch(e){
+    window.open(url, "_blank");
+    showToast("فتح الصورة في تبويب جديد");
+  }
+}
+function setStatus(id, s){
+  const p=posts.find(x=>x.id===id); if(!p) return;
+  if(p.status===s){ p.status="Pending"; p.published_at=null; }
+  else { p.status=s; p.published_at=s==="Published"? new Date().toISOString(): null; }
+  persist(); render(); showToast(s==="Published"?"تم النشر ✅":"تم الرفض ❌");
+}
+function requestDelete(id){
+  pendingDeleteIds=[id];
+  document.getElementById("confirmTitle").textContent="حذف المنشور";
+  document.getElementById("confirmMsg").textContent="هل أنت متأكد من حذف المنشور ("+id+")؟ لا يمكن التراجع.";
+  document.getElementById("confirmDeleteBtn").textContent="حذف المنشور";
+  showConfirm();
+}
+function requestBulkDelete(){
+  if(selectedIds.size===0) return;
+  pendingDeleteIds=[...selectedIds];
+  document.getElementById("confirmTitle").textContent="حذف جماعي";
+  document.getElementById("confirmMsg").textContent="هل أنت متأكد من حذف "+pendingDeleteIds.length+" منشورات محددة؟ لا يمكن التراجع.";
+  document.getElementById("confirmDeleteBtn").textContent="حذف "+pendingDeleteIds.length+" منشورات";
+  showConfirm();
+}
+function showConfirm(){
+  document.getElementById("confirmModal").classList.remove("hidden");
+  document.body.style.overflow="hidden";
+}
+function hideConfirm(){
+  document.getElementById("confirmModal").classList.add("hidden");
+  document.body.style.overflow="";
+  pendingDeleteIds=[];
+}
+function confirmDelete(){
+  if(pendingDeleteIds.length===0) return;
+  posts = posts.filter(p=> !pendingDeleteIds.includes(p.id));
+  pendingDeleteIds.forEach(id=> selectedIds.delete(id));
+  persist();
+  hideConfirm();
+  render();
+  showToast("تم الحذف بنجاح");
+}
+function showToast(msg){
+  const t=document.getElementById("toast");
+  document.getElementById("toastMsg").textContent=msg;
+  t.classList.remove("hidden");
+  clearTimeout(t._t);
+  t._t=setTimeout(()=> t.classList.add("hidden"), 2200);
+}
+function clearSpecific(){document.getElementById("specificDate").value="";specificDate="";render()}
+function clearRange(){document.getElementById("rangeFrom").value="";document.getElementById("rangeTo").value="";rangeFrom="";rangeTo="";render()}
+function clearMonth(){document.getElementById("monthValue").value="";monthValue="";render()}
+// events
+document.querySelectorAll(".time-btn").forEach(b=> b.addEventListener("click",()=>{
+  timeFilter=b.dataset.time;
+  if(timeFilter==="all") activeTab="All";
+  render();
+}));
+document.querySelectorAll(".tab-btn").forEach(b=> b.addEventListener("click",()=>{activeTab=b.dataset.tab; render()}));
+document.getElementById("searchInput").addEventListener("input",e=>{searchQuery=e.target.value.trim(); render()});
+document.getElementById("specificDate").addEventListener("change",e=>{specificDate=e.target.value; render()});
+document.getElementById("rangeFrom").addEventListener("change",e=>{rangeFrom=e.target.value; render()});
+document.getElementById("rangeTo").addEventListener("change",e=>{rangeTo=e.target.value; render()});
+document.getElementById("monthValue").addEventListener("change",e=>{monthValue=e.target.value; render()});
+document.getElementById("selectAll").addEventListener("change",e=> toggleSelectAll(e.target.checked));
+document.getElementById("deleteSelectedBtn").addEventListener("click", requestBulkDelete);
+document.getElementById("confirmDeleteBtn").addEventListener("click", confirmDelete);
+document.getElementById("cancelDeleteBtn").addEventListener("click", hideConfirm);
+document.getElementById("confirmBackdrop").addEventListener("click", hideConfirm);
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){hideConfirm()}
+  if(e.key==="/" && !["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();document.getElementById("searchInput").focus()}
+});
+window.toggleSelect=toggleSelect;window.requestDelete=requestDelete;window.copyCaption=copyCaption;window.downloadImage=downloadImage;window.setStatus=setStatus;window.clearSpecific=clearSpecific;window.clearRange=clearRange;window.clearMonth=clearMonth;
+init();
+</script>
+</body>
+</html>

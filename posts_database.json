@@ -1,0 +1,41 @@
+[
+  {
+    "id": "post-001",
+    "title_en": "White House Unveils New Middle East Economic Corridor",
+    "caption_en": "This is MASSIVE! The White House just dropped a brand-new economic corridor plan linking the Middle East like never before. Trade, energy, and tech all in one move — this is straight up a game-changer for the region. No cap, the next few months are gonna be wild!",
+    "summary_ar": "البيت الأبيض يكشف عن مشروع ممر اقتصادي جديد يربط الشرق الأوسط ويعزز التجارة والطاقة.",
+    "image_url": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=900&q=80",
+    "source_url": "https://www.reuters.com/world/middle-east/white-house-economic-corridor-2026-09-16/",
+    "post_type": "Official Statement",
+    "category": "Geopolitics",
+    "status": "Pending",
+    "created_at": "2026-09-16T09:15:00.000Z",
+    "published_at": null
+  },
+  {
+    "id": "post-002",
+    "title_en": "Markets Surge as Fed Signals Rate Cut",
+    "caption_en": "Yo, Wall Street is LIT rn! The Fed just hinted at a rate cut and markets absolutely exploded. Stocks going parabolic, vibes are immaculate. If you were sidelined, you definitely missed a W today fr fr.",
+    "summary_ar": "الأسواق تقفز بقوة بعد تلميح الاحتياطي الفيدرالي لخفض أسعار الفائدة.",
+    "image_url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&q=80",
+    "source_url": "https://www.bloomberg.com/markets/fed-rate-cut-signal-2026",
+    "post_type": "General News",
+    "category": "Economics",
+    "status": "Published",
+    "created_at": "2026-09-16T11:40:00.000Z",
+    "published_at": "2026-09-16T12:05:00.000Z"
+  },
+  {
+    "id": "post-003",
+    "title_en": "Breakthrough AI Chip Promises 10x Performance",
+    "caption_en": "Tech just leveled up! A new AI chip just dropped claiming 10x performance — and it's not even hype. This could literally flip the whole industry on its head. The future is here and it's moving FAST.",
+    "summary_ar": "الكشف عن شريحة ذكاء اصطناعي ثورية تعد بأداء يفوق السابق بعشرة أضعاف.",
+    "image_url": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=80",
+    "source_url": "https://www.theverge.com/2026/09/16/ai-chip-breakthrough",
+    "post_type": "General News",
+    "category": "Technology",
+    "status": "Rejected",
+    "created_at": "2026-09-16T14:20:00.000Z",
+    "published_at": null
+  }
+]
