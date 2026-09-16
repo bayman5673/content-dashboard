@@ -178,20 +178,26 @@ input[type="date"],input[type="month"]{color-scheme:dark}
 </div>
 </div>
 <script>
-const FALLBACK_POSTS=[
-  {id:"post-001",title_en:"White House Unveils New Middle East Economic Corridor",caption_en:"This is MASSIVE! The White House just dropped a brand-new economic corridor plan linking the Middle East like never before. Trade, energy, and tech all in one move — this is straight up a game-changer for the region. No cap, the next few months are gonna be wild!",summary_ar:"البيت الأبيض يكشف عن مشروع ممر اقتصادي جديد يربط الشرق الأوسط ويعزز التجارة والطاقة.",image_url:"https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=900&q=80",source_url:"https://www.reuters.com/world/middle-east/white-house-economic-corridor-2026-09-16/",post_type:"Official Statement",category:"Geopolitics",status:"Pending",created_at:new Date().toISOString(),published_at:null},
-  {id:"post-002",title_en:"Markets Surge as Fed Signals Rate Cut",caption_en:"Yo, Wall Street is LIT rn! The Fed just hinted at a rate cut and markets absolutely exploded. Stocks going parabolic, vibes are immaculate. If you were sidelined, you definitely missed a W today fr fr.",summary_ar:"الأسواق تقفز بقوة بعد تلميح الاحتياطي الفيدرالي لخفض أسعار الفائدة.",image_url:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&q=80",source_url:"https://www.bloomberg.com/markets/fed-rate-cut-signal-2026",post_type:"General News",category:"Economics",status:"Published",created_at:new Date().toISOString(),published_at:new Date().toISOString()},
-  {id:"post-003",title_en:"Breakthrough AI Chip Promises 10x Performance",caption_en:"Tech just leveled up! A new AI chip just dropped claiming 10x performance — and its not even hype. This could literally flip the whole industry on its head. The future is here and its moving FAST.",summary_ar:"الكشف عن شريحة ذكاء اصطناعي ثورية تعد بأداء يفوق السابق بعشرة أضعاف.",image_url:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=80",source_url:"https://www.theverge.com/2026/09/16/ai-chip-breakthrough",post_type:"General News",category:"Technology",status:"Rejected",created_at:new Date().toISOString(),published_at:null}
-];
 let posts=[];let activeTab="All";let timeFilter="today";let searchQuery="";let specificDate="";let rangeFrom="";let rangeTo="";let monthValue="";let selectedIds=new Set();let pendingDeleteIds=[];
 function todayStr(d=new Date()){return d.toLocaleDateString("en-CA")}
 function dateStr(iso){return new Date(iso).toLocaleDateString("en-CA")}
 function yesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return d.toLocaleDateString("en-CA")}
 async function init(){
   document.getElementById("todayLabel").textContent=todayStr();
-  try{const r=await fetch("./posts_database.json",{cache:"no-store"});if(r.ok){const j=await r.json();if(Array.isArray(j)&&j.length) posts=j;else posts=FALLBACK_POSTS.slice()}else posts=FALLBACK_POSTS.slice()}catch{posts=FALLBACK_POSTS.slice()}
-  const saved=localStorage.getItem("cp_posts_v2");
-  if(saved){try{const p=JSON.parse(saved);if(Array.isArray(p)&&p.length) posts=p}catch{}}
+  // Source of truth: posts_database.json only. No fallback, no dummy data, no localStorage override.
+  try{
+    const r=await fetch("./posts_database.json",{cache:"no-store"});
+    if(r.ok){
+      const j=await r.json();
+      if(Array.isArray(j)) posts=j;
+      else if(j && Array.isArray(j.posts)) posts=j.posts;
+      else posts=[];
+    }else{
+      posts=[];
+    }
+  }catch(e){
+    posts=[];
+  }
   posts.sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
   render();
 }
@@ -314,7 +320,7 @@ function render(){
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       </button>
       <div class="relative h-[190px] overflow-hidden bg-zinc-800">
-        <img src="${p.image_url}" alt="" class="w-full h-full object-cover group-hover:scale-[1.02] transition duration-700" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&q=80'">
+        <img src="${p.image_url}" alt="" class="w-full h-full object-cover group-hover:scale-[1.02] transition duration-700" loading="lazy">
         <div class="absolute inset-0 bg-gradient-to-t from-zinc-900/60 via-transparent to-transparent"></div>
         <span class="absolute top-3 end-3 inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-1 rounded-full border shadow ${badgeClass(p.status)}">
           <span class="w-1.5 h-1.5 rounded-full ${p.status==="Pending"?"bg-zinc-900":"bg-white"}"></span>${p.status}
